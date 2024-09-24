@@ -3,11 +3,21 @@
 namespace App\Entity;
 
 // Cette classe représente une entité (table liée dans la BD)
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity]
+#[ORM\Table(name: 'livre')]
 class Livre
 {
+    #[ORM\Id]
+    #[ORM\Column(name: 'id_livre', type: 'integer')]
+    #[ORM\GeneratedValue]
     private int $id;
+    #[ORM\Column(name: 'titre_livre', type: 'string', length: 100, nullable: false)]
     private string $titre;
+    #[ORM\Column(name: 'auteur_livre', type: 'string', length: 100, nullable: false)]
     private string $auteur;
+    #[ORM\Column(name: 'nombre_pages_livre', type: 'int', nullable: false)]
     private int $nbPages;
 
     public function getId(): int
