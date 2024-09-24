@@ -17,7 +17,7 @@ class Livre
     private string $titre;
     #[ORM\Column(name: 'auteur_livre', type: 'string', length: 100, nullable: false)]
     private string $auteur;
-    #[ORM\Column(name: 'nombre_pages_livre', type: 'int', nullable: false)]
+    #[ORM\Column(name: 'nombre_pages_livre', type: 'integer', nullable: false)]
     private int $nbPages;
 
     public function getId(): int

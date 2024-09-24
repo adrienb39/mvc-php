@@ -2,28 +2,28 @@
 
 namespace App\Controllers;
 
-use App\Dao\LivreDao;
 use App\Entity\Livre;
+use Doctrine\ORM\EntityManager;
 
 class LivreController
 {
-    private LivreDao $livreDao; // Dépendance
+    private EntityManager $entityManager; // Dépendance
 
-    public function __construct(LivreDao $dao)
+    public function __construct(EntityManager $entityManager)
     {
-        $this->livreDao = $dao;
+        $this->entityManager = $entityManager;
     }
 
     public function liste()
     {
         // Fait appel au modèle afin de récupérer les données dans la BD
-        $livres = $this->livreDao->selectAll();
+        $livres = $this->entityManager->getRepository(Livre::class)->findAll();
         // Fait appel à la vue afin de renvoyer la page
         require __DIR__ . "/../../views/livre/list.php";
     }
     public function details($id)
     {
-        $livre = $this->livreDao->selectOne($id);
+        $livre = $this->entityManager->getRepository(Livre::class)->find($id);
         require __DIR__ . "/../../views/livre/details.php";
     }
 
@@ -36,7 +36,8 @@ class LivreController
                 $livre->setTitre($_POST["titre_livre"]);
                 $livre->setAuteur($_POST["auteur_livre"]);
                 $livre->setNbPages($_POST["nombre_pages_livre"]);
-                $this->livreDao->insert($livre);
+                $this->entityManager->persist($livre);
+                $this->entityManager->flush();
                 header("location: /?route=livre-list");
             } else {
                 require __DIR__ . "/../../views/livre/add.php";
@@ -51,26 +52,28 @@ class LivreController
         if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $errors = $this->validate($_POST);
             if (empty($errors)) {
-                $livre = new Livre();
-                $livre->setId($id);
-                $livre->setTitre($_POST["titre_livre"]);
-                $livre->setAuteur($_POST["auteur_livre"]);
-                $livre->setNbPages($_POST["nombre_pages_livre"]);
-                $this->livreDao->update($livre);
+                $livre = $this->entityManager->getRepository(Livre::class)->find($id);
+                if ($livre) {
+                    $livre->setTitre($_POST["titre_livre"]);
+                    $livre->setAuteur($_POST["auteur_livre"]);
+                    $livre->setNbPages($_POST["nombre_pages_livre"]);
+                    $this->entityManager->flush();
+                }
                 header("location: /?route=livre-list");
             } else {
-                $livre = $this->livreDao->selectOne($id);
+                $livre = $this->entityManager->getRepository(Livre::class)->find($id);
                 require __DIR__ . "/../../views/livre/edit.php";
             }
         } else {
-            $livre = $this->livreDao->selectOne($id);
+            $livre = $this->entityManager->getRepository(Livre::class)->find($id);
             require __DIR__ . "/../../views/livre/edit.php";
         }
     }
 
     public function delete($id)
     {
-        $this->livreDao->delete($id);
+        $this->entityManager->remove($this->entityManager->getRepository(Livre::class)->find($id));
+        $this->entityManager->flush();
         header("location: /?route=livre-list");
     }
     

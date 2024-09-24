@@ -5,13 +5,15 @@
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
+/**
+ * @var Doctrine\ORM\EntityManager $entityManager
+ */
+
+$entityManager = require_once __DIR__ . '/../config/bootstrap.php';
+
 // Chargement des variables d'environnement
 $dotEnv = \Dotenv\Dotenv::createImmutable(__DIR__ . "/../");
 $dotEnv->load(); // Charger les variables d'environnement de .env dans $_ENV
-
-// Configurer la connexion à la base de données
-$db = new PDO("mysql:host={$_ENV['DB_HOST']};dbname={$_ENV['DB_NAME']}", $_ENV['DB_USER'], $_ENV['DB_PASSWORD']);
-
 // Mise en place du routing
 $route = $_GET["route"] ?? 'accueil';
 // Tester la valeur de $route
@@ -21,30 +23,24 @@ switch ($route) {
         $accueilController->accueil();
         break;
     case 'livre-list':
-        // $livreDao est une dépendance de LivreController
-        $livreDao = new \App\Dao\LivreDao($db);
         // Injecter la dépendance $livreDao dans l'objet LivreController
-        $livreController = new \App\Controllers\LivreController($livreDao);
+        $livreController = new \App\Controllers\LivreController($entityManager);
         $livreController->liste();
         break;
     case 'livre-details':
-        $livreDao = new \App\Dao\LivreDao($db);
-        $livreController = new \App\Controllers\LivreController($livreDao);
+        $livreController = new \App\Controllers\LivreController($entityManager);
         $livreController->details($_GET["livre"]);
         break;
     case 'livre-add':
-        $livreDao = new \App\Dao\LivreDao($db);
-        $livreController = new \App\Controllers\LivreController($livreDao);
+        $livreController = new \App\Controllers\LivreController($entityManager);
         $livreController->add();
         break;
     case 'livre-edit':
-        $livreDao = new \App\Dao\LivreDao($db);
-        $livreController = new \App\Controllers\LivreController($livreDao);
+        $livreController = new \App\Controllers\LivreController($entityManager);
         $livreController->edit($_GET['livre']);
         break;
     case 'livre-delete':
-        $livreDao = new \App\Dao\LivreDao($db);
-        $livreController = new \App\Controllers\LivreController($livreDao);
+        $livreController = new \App\Controllers\LivreController($entityManager);
         $livreController->delete($_GET['livre']);
         break;
     default:
