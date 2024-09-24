@@ -7,7 +7,10 @@ $isDevMode = true;
 
 $configuration = \Doctrine\ORM\ORMSetup::createAttributeMetadataConfiguration($paths, $isDevMode);
 
-$configurationDB = ['driver' => 'pdo_mysql', 'path' => __DIR__ . "/../.env"];
+// Chargement des variables d'environnement
+$dotEnv = \Dotenv\Dotenv::createImmutable(__DIR__ . "/../");
+$dotEnv->load(); // Charger les variables d'environnement de .env dans $_ENV
+$configurationDB = ['driver' => 'pdo_mysql', "host" => "{$_ENV['DB_HOST']}", "dbname" => "{$_ENV['DB_NAME']}", "user" => "{$_ENV['DB_USER']}", "password" => "{$_ENV['DB_PASSWORD']}"];
 
 $connexionDB = \Doctrine\DBAL\DriverManager::getConnection($configurationDB, $configuration);
 
